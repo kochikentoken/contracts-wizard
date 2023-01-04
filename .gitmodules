@@ -1,0 +1,3 @@
+[submodule "contracts-wizard"]
+	path = contracts-wizard
+	url = https://github.com/OpenZeppelin/contracts-wizard
