@@ -23,7 +23,7 @@ export function addPausable(
   requireAccessControl(c, functions.unpause, access, "PAUSER");
   c.addFunctionCode("_unpause();", functions.unpause);
   if (paused) {
-    c.addConstructorCode(`pause();`);
+    c.addConstructorCode(`_pause();`);
   }
 }
 
