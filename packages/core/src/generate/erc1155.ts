@@ -15,7 +15,7 @@ const blueprint = {
   supply: booleans,
   updatableUri: booleans,
   access: accessOptions,
-  user: [""],
+  user: booleans,
   upgradeable: upgradeableOptions,
   info: infoOptions,
 };

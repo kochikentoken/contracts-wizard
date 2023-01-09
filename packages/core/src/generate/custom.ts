@@ -10,7 +10,7 @@ const blueprint = {
   name: ["MyContract"],
   pausable: booleans,
   access: accessOptions,
-  user: [""],
+  user: booleans,
   upgradeable: upgradeableOptions,
   info: infoOptions,
 };

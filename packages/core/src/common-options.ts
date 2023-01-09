@@ -5,14 +5,14 @@ import type { Upgradeable } from "./set-upgradeable";
 
 export const defaults: Required<CommonOptions> = {
   access: false,
-  user: "",
+  user: false,
   upgradeable: false,
   info: infoDefaults,
 } as const;
 
 export interface CommonOptions {
   access?: Access;
-  user?: string;
+  user?: boolean;
   upgradeable?: Upgradeable;
   info?: Info;
 }
@@ -22,7 +22,7 @@ export function withCommonDefaults(
 ): Required<CommonOptions> {
   return {
     access: opts.access ?? false,
-    user: opts.user ?? "",
+    user: opts.user ?? false,
     upgradeable: opts.upgradeable ?? false,
     info: opts.info ?? {},
   };

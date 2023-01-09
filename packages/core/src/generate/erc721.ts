@@ -17,7 +17,7 @@ const blueprint = {
   mintable: booleans,
   incremental: booleans,
   access: accessOptions,
-  user: [""],
+  user: booleans,
   upgradeable: upgradeableOptions,
   info: infoOptions,
   votes: booleans,

@@ -27,7 +27,7 @@ const blueprint = {
   settings: booleans,
   upgradeable: upgradeableOptions,
   access: accessOptions,
-  user: [""],
+  user: booleans,
   info: infoOptions,
 };
 

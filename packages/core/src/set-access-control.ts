@@ -11,20 +11,22 @@ export type Access = typeof accessOptions[number];
 export function setAccessControl(
   c: ContractBuilder,
   access: Access,
-  user?: string
+  user = false
 ) {
   if (user) {
-    c.addVariable(`address user = ${user};`);
+    c.addConstructorArgument({ name: "user", type: "address" });
   }
   switch (access) {
     case "ownable": {
       c.addParent(parents.Ownable);
-      c.addConstructorCode("_transferOwnership(user)");
+      if (user) c.addConstructorCode("_transferOwnership(user);");
       break;
     }
     case "roles": {
       if (c.addParent(parents.AccessControl)) {
-        c.addConstructorCode("_grantRole(DEFAULT_ADMIN_ROLE, user);");
+        c.addConstructorCode(
+          `_grantRole(DEFAULT_ADMIN_ROLE, ${user ? "user" : "msg.sender"});`
+        );
       }
       c.addOverride(parents.AccessControl.name, supportsInterface);
       break;
