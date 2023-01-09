@@ -42,6 +42,7 @@ export const defaults: Required<ERC20Options> = {
   votes: false,
   flashmint: false,
   access: commonDefaults.access,
+  user: commonDefaults.user,
   upgradeable: commonDefaults.upgradeable,
   info: commonDefaults.info,
 } as const;
@@ -80,7 +81,7 @@ export function buildERC20(opts: ERC20Options): Contract {
 
   const c = new ContractBuilder(allOpts.name);
 
-  const { access, upgradeable, info } = allOpts;
+  const { access, upgradeable, info, user } = allOpts;
 
   addBase(c, allOpts.name, allOpts.symbol);
 
@@ -117,7 +118,7 @@ export function buildERC20(opts: ERC20Options): Contract {
     addFlashMint(c);
   }
 
-  setAccessControl(c, access);
+  setAccessControl(c, access, user);
   setUpgradeable(c, upgradeable, access);
   setInfo(c, info);
 

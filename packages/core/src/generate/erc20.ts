@@ -19,6 +19,7 @@ const blueprint = {
   flashmint: booleans,
   premint: ["1"],
   access: accessOptions,
+  user: [""],
   upgradeable: upgradeableOptions,
   info: infoOptions,
 };
