@@ -1,16 +1,8 @@
 import { Contract, ContractBuilder } from "./contract";
-import {
-  Access,
-  setAccessControl,
-  requireAccessControl,
-} from "./set-access-control";
+import { Access, setAccessControl, requireAccessControl } from "./set-access-control";
 import { addPausable } from "./add-pausable";
 import { defineFunctions } from "./utils/define-functions";
-import {
-  CommonOptions,
-  withCommonDefaults,
-  defaults as commonDefaults,
-} from "./common-options";
+import { CommonOptions, withCommonDefaults, defaults as commonDefaults } from "./common-options";
 import { setUpgradeable } from "./set-upgradeable";
 import { setInfo } from "./set-info";
 import { printContract } from "./print";
@@ -68,12 +60,7 @@ export function printERC20(opts: ERC20Options = defaults): string {
 }
 
 export function isAccessControlRequired(opts: Partial<ERC20Options>): boolean {
-  return (
-    opts.mintable ||
-    opts.pausable ||
-    opts.snapshots ||
-    opts.upgradeable === "uups"
-  );
+  return opts.mintable || opts.pausable || opts.snapshots || opts.upgradeable === "uups";
 }
 
 export function buildERC20(opts: ERC20Options): Contract {
@@ -116,6 +103,10 @@ export function buildERC20(opts: ERC20Options): Contract {
 
   if (allOpts.flashmint) {
     addFlashMint(c);
+  }
+
+  if (user) {
+    c.addConstructorArgument({ name: "user", type: "address" });
   }
 
   setAccessControl(c, access, user);
@@ -172,9 +163,8 @@ function addPremint(c: ContractBuilder, amount: string) {
       const decimalPlace = decimals.length - exponent;
       const zeroes = new Array(Math.max(0, -decimalPlace)).fill("0").join("");
       const units = integer + decimals + zeroes;
-      const exp =
-        decimalPlace <= 0 ? "decimals()" : `(decimals() - ${decimalPlace})`;
-      c.addConstructorCode(`_mint(msg.sender, ${units} * 10 ** ${exp});`);
+      const exp = decimalPlace <= 0 ? "decimals()" : `(decimals() - ${decimalPlace})`;
+      c.addConstructorCode(`_mint(user, ${units} * 10 ** ${exp});`);
     }
   }
 }
