@@ -12,7 +12,12 @@ const blueprint = {
   burnable: booleans,
   snapshots: booleans,
   pausable: booleans,
-  paused: booleans,
+  pauseOpts: [
+    {
+      paused: false,
+      unpausable: true,
+    },
+  ],
   mintable: booleans,
   permit: booleans,
   votes: booleans,

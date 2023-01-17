@@ -2,7 +2,7 @@ import { Contract, ContractBuilder } from "./contract";
 import { Access, setAccessControl, requireAccessControl } from "./set-access-control";
 import { addPausable } from "./add-pausable";
 import { defineFunctions } from "./utils/define-functions";
-import { CommonOptions, withCommonDefaults, defaults as commonDefaults } from "./common-options";
+import { CommonOptions, withCommonDefaults, defaults as commonDefaults, PauseOptions } from "./common-options";
 import { setUpgradeable } from "./set-upgradeable";
 import { setInfo } from "./set-info";
 import { printContract } from "./print";
@@ -13,7 +13,7 @@ export interface ERC20Options extends CommonOptions {
   burnable?: boolean;
   snapshots?: boolean;
   pausable?: boolean;
-  paused?: boolean;
+  pauseOpts?: PauseOptions;
   premint?: string;
   mintable?: boolean;
   permit?: boolean;
@@ -27,7 +27,10 @@ export const defaults: Required<ERC20Options> = {
   burnable: false,
   snapshots: false,
   pausable: false,
-  paused: false,
+  pauseOpts: {
+    paused: false,
+    unpausable: true,
+  },
   premint: "0",
   mintable: false,
   permit: false,
@@ -46,7 +49,7 @@ function withDefaults(opts: ERC20Options): Required<ERC20Options> {
     burnable: opts.burnable ?? defaults.burnable,
     snapshots: opts.snapshots ?? defaults.snapshots,
     pausable: opts.pausable ?? defaults.pausable,
-    paused: opts.paused ?? defaults.paused,
+    pauseOpts: opts.pauseOpts ?? defaults.pauseOpts,
     premint: opts.premint || defaults.premint,
     mintable: opts.mintable ?? defaults.mintable,
     permit: opts.permit ?? defaults.permit,
@@ -81,7 +84,7 @@ export function buildERC20(opts: ERC20Options): Contract {
   }
 
   if (allOpts.pausable) {
-    addPausable(c, access, [functions._beforeTokenTransfer], allOpts.paused);
+    addPausable(c, access, [functions._beforeTokenTransfer], allOpts.pauseOpts);
   }
 
   if (allOpts.premint) {

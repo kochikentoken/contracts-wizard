@@ -1,3 +1,4 @@
+import type { PauseOptions } from "./common-options";
 import type { ContractBuilder, BaseFunction } from "./contract";
 import { Access, requireAccessControl } from "./set-access-control";
 import { defineFunctions } from "./utils/define-functions";
@@ -6,7 +7,10 @@ export function addPausable(
   c: ContractBuilder,
   access: Access,
   pausableFns: BaseFunction[],
-  paused: boolean = false
+  pauseOpts: PauseOptions = {
+    paused: false,
+    unpausable: true,
+  }
 ) {
   c.addParent({
     name: "Pausable",
@@ -19,10 +23,11 @@ export function addPausable(
 
   requireAccessControl(c, functions.pause, access, "PAUSER");
   c.addFunctionCode("_pause();", functions.pause);
-
-  requireAccessControl(c, functions.unpause, access, "PAUSER");
-  c.addFunctionCode("_unpause();", functions.unpause);
-  if (paused) {
+  if (pauseOpts.unpausable) {
+    requireAccessControl(c, functions.unpause, access, "PAUSER");
+    c.addFunctionCode("_unpause();", functions.unpause);
+  }
+  if (pauseOpts.paused) {
     c.addConstructorCode(`_pause();`);
   }
 }

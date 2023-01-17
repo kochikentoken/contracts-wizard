@@ -16,10 +16,11 @@ export interface CommonOptions {
   upgradeable?: Upgradeable;
   info?: Info;
 }
-
-export function withCommonDefaults(
-  opts: CommonOptions
-): Required<CommonOptions> {
+export interface PauseOptions {
+  paused?: boolean;
+  unpausable?: boolean;
+}
+export function withCommonDefaults(opts: CommonOptions): Required<CommonOptions> {
   return {
     access: opts.access ?? false,
     user: opts.user ?? false,
