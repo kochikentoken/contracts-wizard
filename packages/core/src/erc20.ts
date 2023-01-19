@@ -2,10 +2,11 @@ import { Contract, ContractBuilder } from "./contract";
 import { Access, setAccessControl, requireAccessControl } from "./set-access-control";
 import { addPausable } from "./add-pausable";
 import { defineFunctions } from "./utils/define-functions";
-import { CommonOptions, withCommonDefaults, defaults as commonDefaults, PauseOptions } from "./common-options";
+import { CommonOptions, withCommonDefaults, defaults as commonDefaults, PauseOptions, TaxOptions } from "./common-options";
 import { setUpgradeable } from "./set-upgradeable";
 import { setInfo } from "./set-info";
 import { printContract } from "./print";
+import { addTaxable } from "./add-taxable";
 
 export interface ERC20Options extends CommonOptions {
   name: string;
@@ -19,6 +20,7 @@ export interface ERC20Options extends CommonOptions {
   permit?: boolean;
   votes?: boolean;
   flashmint?: boolean;
+  taxOpts?: TaxOptions;
 }
 
 export const defaults: Required<ERC20Options> = {
@@ -40,6 +42,12 @@ export const defaults: Required<ERC20Options> = {
   user: commonDefaults.user,
   upgradeable: commonDefaults.upgradeable,
   info: commonDefaults.info,
+  taxOpts: {
+    taxable: false,
+    taxAddressUpdatable: false,
+    taxDecreasable: false,
+    taxIncreasable: false,
+  },
 } as const;
 
 function withDefaults(opts: ERC20Options): Required<ERC20Options> {
@@ -55,6 +63,7 @@ function withDefaults(opts: ERC20Options): Required<ERC20Options> {
     permit: opts.permit ?? defaults.permit,
     votes: opts.votes ?? defaults.votes,
     flashmint: opts.flashmint ?? defaults.flashmint,
+    taxOpts: opts.taxOpts ?? defaults.taxOpts,
   };
 }
 
@@ -115,6 +124,8 @@ export function buildERC20(opts: ERC20Options): Contract {
   setAccessControl(c, access, user);
   setUpgradeable(c, upgradeable, access);
   setInfo(c, info);
+
+  if (allOpts?.taxOpts.taxable) addTaxable(c, access, allOpts.taxOpts);
 
   return c;
 }

@@ -27,6 +27,14 @@ const blueprint = {
   user: booleans,
   upgradeable: upgradeableOptions,
   info: infoOptions,
+  taxOpts: [
+    {
+      taxable: false,
+      taxAddressUpdatable: false,
+      taxDecreasable: false,
+      taxIncreasable: false,
+    },
+  ],
 };
 
 export function* generateERC20Options(): Generator<Required<ERC20Options>> {

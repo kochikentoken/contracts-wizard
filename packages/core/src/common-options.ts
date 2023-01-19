@@ -20,6 +20,12 @@ export interface PauseOptions {
   paused?: boolean;
   unpausable?: boolean;
 }
+export interface TaxOptions {
+  taxable?: boolean;
+  taxAddressUpdatable?: boolean;
+  taxIncreasable?: boolean;
+  taxDecreasable?: boolean;
+}
 export function withCommonDefaults(opts: CommonOptions): Required<CommonOptions> {
   return {
     access: opts.access ?? false,
