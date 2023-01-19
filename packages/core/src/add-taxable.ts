@@ -1,6 +1,6 @@
 import type { TaxOptions } from "./common-options";
 import type { ContractBuilder } from "./contract";
-import type { Access } from "./set-access-control";
+import { Access, requireAccessControl } from "./set-access-control";
 import { defineFunctions } from "./utils/define-functions";
 
 export function addTaxable(c: ContractBuilder, access: Access, taxOpts: TaxOptions) {
@@ -25,20 +25,22 @@ export function addTaxable(c: ContractBuilder, access: Access, taxOpts: TaxOptio
     functions.payTaxes
   );
 
-  if (access === "ownable") {
+  if (access) {
     if (taxOpts.taxAddressUpdatable) {
-      c.addModifier("onlyOwner", functions.setTaxAddress);
       c.setFunctionBody(["taxAddress = _taxAddress;"], functions.setTaxAddress);
     }
 
-    if (taxOpts.taxIncreasable) {
-      c.addModifier("onlyOwner", functions.increaseTaxPercentage);
-      c.setFunctionBody(['require(taxPercentage < _taxPercentage, "The new tax Percentage must be higher than the old one" );', "taxPercentage = _taxPercentage;"], functions.increaseTaxPercentage);
+    if (taxOpts.taxIncreasable && taxOpts.taxDecreasable) {
+      c.setFunctionBody(["taxPercentage = _taxPercentage;"], functions.setTaxPercentage);
+    } else if (taxOpts.taxIncreasable) {
+      c.setFunctionBody(['require(taxPercentage < _taxPercentage, "The new tax Percentage must be higher than the old one" );', "taxPercentage = _taxPercentage;"], functions.setTaxPercentage);
+    } else if (taxOpts.taxDecreasable) {
+      c.setFunctionBody(['require(taxPercentage > _taxPercentage, "The new tax Percentage must be lower than the old one" );', "taxPercentage = _taxPercentage;"], functions.setTaxPercentage);
     }
-    if (taxOpts.taxDecreasable) {
-      c.addModifier("onlyOwner", functions.decreaseTaxPercentage);
-      c.setFunctionBody(['require(taxPercentage > _taxPercentage, "The new tax Percentage must be lower than the old one" );', "taxPercentage = _taxPercentage;"], functions.decreaseTaxPercentage);
-    }
+
+    // MODIFIER PART
+    if (taxOpts.taxAddressUpdatable) requireAccessControl(c, functions.setTaxAddress, access, "TAXER");
+    if (taxOpts.taxIncreasable || taxOpts.taxDecreasable) requireAccessControl(c, functions.setTaxPercentage, access, "TAXER");
   }
 }
 
@@ -63,11 +65,7 @@ const functions = defineFunctions({
     kind: "public" as const,
     args: [{ name: "_taxAddress", type: "address" }],
   },
-  increaseTaxPercentage: {
-    kind: "public" as const,
-    args: [{ name: "_taxPercentage", type: "uint" }],
-  },
-  decreaseTaxPercentage: {
+  setTaxPercentage: {
     kind: "public" as const,
     args: [{ name: "_taxPercentage", type: "uint" }],
   },

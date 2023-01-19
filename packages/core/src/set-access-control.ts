@@ -43,7 +43,7 @@ export function requireAccessControl(c: ContractBuilder, fn: BaseFunction, acces
     case "roles": {
       const roleId = role + "_ROLE";
       if (c.addVariable(`bytes32 public constant ${roleId} = keccak256("${roleId}");`)) {
-        c.addConstructorCode(`_grantRole(${roleId}, msg.sender);`);
+        c.addConstructorCode(`_grantRole(${roleId}, user);`);
       }
       c.addModifier(`onlyRole(${roleId})`, fn);
       break;
