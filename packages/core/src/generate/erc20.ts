@@ -35,6 +35,7 @@ const blueprint = {
       taxIncreasable: false,
     },
   ],
+  whitelistOpts: [{ whitelistable: false, bypassPause: false, bypassTax: false }],
 };
 
 export function* generateERC20Options(): Generator<Required<ERC20Options>> {

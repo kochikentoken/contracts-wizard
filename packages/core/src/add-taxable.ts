@@ -1,9 +1,9 @@
-import type { TaxOptions } from "./common-options";
+import type { TaxOptions, WhitelistOptions } from "./common-options";
 import type { ContractBuilder } from "./contract";
 import { Access, requireAccessControl } from "./set-access-control";
 import { defineFunctions } from "./utils/define-functions";
 
-export function addTaxable(c: ContractBuilder, access: Access, taxOpts: TaxOptions) {
+export function addTaxable(c: ContractBuilder, access: Access, taxOpts: TaxOptions, pausable: boolean, whitelistOpts: WhitelistOptions) {
   c.addParent({
     name: "ReentrancyGuard",
     path: "@openzeppelin/contracts/security/ReentrancyGuard.sol",
@@ -17,7 +17,15 @@ export function addTaxable(c: ContractBuilder, access: Access, taxOpts: TaxOptio
   c.addConstructorCode("taxPercentage = _taxPercentage;");
 
   c.addOverride("ERC20", functions._transfer);
-  c.setFunctionBody(["uint256 remainder = amount;", "remainder = payTaxes(amount, from);", "super._transfer(from, to, remainder);"], functions._transfer);
+
+  const transferBody: string[] = [];
+  if (whitelistOpts.bypassPause && pausable) transferBody.push("if(!whitelist[from])");
+  if (pausable) transferBody.push('require(!paused(), "ERROR: The token is currently paused for maintenance.");');
+  transferBody.push("uint256 remainder = amount;");
+  if (whitelistOpts.bypassTax) transferBody.push("if(!whitelist[from])");
+  transferBody.push("remainder = payTaxes(amount, from);");
+  transferBody.push("super._transfer(from, to, remainder);");
+  c.setFunctionBody(transferBody, functions._transfer);
 
   c.addModifier("nonReentrant", functions.payTaxes);
   c.setFunctionBody(
@@ -70,5 +78,3 @@ const functions = defineFunctions({
     args: [{ name: "_taxPercentage", type: "uint" }],
   },
 });
-
-// TODO: WhiteLists mecha

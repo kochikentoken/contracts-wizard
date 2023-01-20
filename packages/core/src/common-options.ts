@@ -26,6 +26,12 @@ export interface TaxOptions {
   taxIncreasable?: boolean;
   taxDecreasable?: boolean;
 }
+export interface WhitelistOptions {
+  whitelistable: boolean;
+  bypassPause: boolean;
+  bypassTax: boolean;
+}
+
 export function withCommonDefaults(opts: CommonOptions): Required<CommonOptions> {
   return {
     access: opts.access ?? false,

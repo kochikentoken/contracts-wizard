@@ -2,11 +2,12 @@ import { Contract, ContractBuilder } from "./contract";
 import { Access, setAccessControl, requireAccessControl } from "./set-access-control";
 import { addPausable } from "./add-pausable";
 import { defineFunctions } from "./utils/define-functions";
-import { CommonOptions, withCommonDefaults, defaults as commonDefaults, PauseOptions, TaxOptions } from "./common-options";
+import { CommonOptions, withCommonDefaults, defaults as commonDefaults, PauseOptions, TaxOptions, WhitelistOptions } from "./common-options";
 import { setUpgradeable } from "./set-upgradeable";
 import { setInfo } from "./set-info";
 import { printContract } from "./print";
 import { addTaxable } from "./add-taxable";
+import { addWhitelist } from "./add-whitelist";
 
 export interface ERC20Options extends CommonOptions {
   name: string;
@@ -21,6 +22,7 @@ export interface ERC20Options extends CommonOptions {
   votes?: boolean;
   flashmint?: boolean;
   taxOpts?: TaxOptions;
+  whitelistOpts?: WhitelistOptions;
 }
 
 export const defaults: Required<ERC20Options> = {
@@ -48,6 +50,7 @@ export const defaults: Required<ERC20Options> = {
     taxDecreasable: false,
     taxIncreasable: false,
   },
+  whitelistOpts: { whitelistable: false, bypassPause: false, bypassTax: false },
 } as const;
 
 function withDefaults(opts: ERC20Options): Required<ERC20Options> {
@@ -64,6 +67,7 @@ function withDefaults(opts: ERC20Options): Required<ERC20Options> {
     votes: opts.votes ?? defaults.votes,
     flashmint: opts.flashmint ?? defaults.flashmint,
     taxOpts: opts.taxOpts ?? defaults.taxOpts,
+    whitelistOpts: opts.whitelistOpts ?? defaults.whitelistOpts,
   };
 }
 
@@ -93,7 +97,7 @@ export function buildERC20(opts: ERC20Options): Contract {
   }
 
   if (allOpts.pausable) {
-    addPausable(c, access, [functions._beforeTokenTransfer], allOpts.pauseOpts);
+    addPausable(c, access, allOpts?.taxOpts.taxable ? [] : [functions._beforeTokenTransfer], allOpts.pauseOpts);
   }
 
   if (allOpts.premint) {
@@ -121,11 +125,17 @@ export function buildERC20(opts: ERC20Options): Contract {
     c.addConstructorArgument({ name: "user", type: "address" });
   }
 
+  if (allOpts?.whitelistOpts?.whitelistable) {
+    addWhitelist(c, access, allOpts.whitelistOpts);
+  }
+
+  if (allOpts?.taxOpts?.taxable) {
+    addTaxable(c, access, allOpts.taxOpts, allOpts.pausable, allOpts.whitelistOpts);
+  }
+
   setAccessControl(c, access, user);
   setUpgradeable(c, upgradeable, access);
   setInfo(c, info);
-
-  if (allOpts?.taxOpts.taxable) addTaxable(c, access, allOpts.taxOpts);
 
   return c;
 }
