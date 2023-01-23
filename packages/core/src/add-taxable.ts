@@ -19,8 +19,10 @@ export function addTaxable(c: ContractBuilder, access: Access, taxOpts: TaxOptio
   c.addOverride("ERC20", functions._transfer);
 
   const transferBody: string[] = [];
-  if (whitelistOpts.bypassPause && pausable) transferBody.push("if(!whitelist[from])");
-  if (pausable) transferBody.push('require(!paused(), "ERROR: The token is currently paused for maintenance.");');
+  if (pausable) {
+    transferBody.push(`if(owner() != _msgSender()${whitelistOpts.bypassPause ? " && !whitelist[from]" : ""})`);
+    transferBody.push('require(!paused(), "ERROR: The token is currently paused for maintenance.");');
+  }
   transferBody.push("uint256 remainder = amount;");
   if (whitelistOpts.bypassTax) transferBody.push("if(!whitelist[from])");
   transferBody.push("remainder = payTaxes(amount, from);");

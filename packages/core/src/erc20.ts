@@ -126,7 +126,7 @@ export function buildERC20(opts: ERC20Options): Contract {
   }
 
   if (allOpts?.whitelistOpts?.whitelistable) {
-    addWhitelist(c, access, allOpts.whitelistOpts);
+    addWhitelist(c, access, allOpts.whitelistOpts, !!allOpts?.taxOpts?.taxable);
   }
 
   if (allOpts?.taxOpts?.taxable) {

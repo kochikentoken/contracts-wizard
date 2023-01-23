@@ -3,7 +3,7 @@ import type { ContractBuilder } from "./contract";
 import { Access, requireAccessControl } from "./set-access-control";
 import { defineFunctions } from "./utils/define-functions";
 
-export function addWhitelist(c: ContractBuilder, access: Access, whitelistOpts: WhitelistOptions) {
+export function addWhitelist(c: ContractBuilder, access: Access, whitelistOpts: WhitelistOptions, taxable: boolean) {
   requireAccessControl(c, functions.setWhitelisted, access, "WHITELISTER");
   c.setFunctionBody(["whitelist[addr] = is_whitelisted;"], functions.setWhitelisted);
 
@@ -13,7 +13,7 @@ export function addWhitelist(c: ContractBuilder, access: Access, whitelistOpts: 
   c.addVariable("mapping(address => bool) public whitelist;");
   c.addConstructorArgument({ name: "whiltelist_addrs", type: "address[] memory" });
   c.addConstructorCode("setArrayWhitelisted(whiltelist_addrs, true);");
-  c.addConstructorCode("whitelist[_taxAddress] = true;");
+  if (taxable) c.addConstructorCode("whitelist[_taxAddress] = true;");
   c.addConstructorCode("whitelist[user] = true;");
   c.addConstructorCode("whitelist[address(this)] = true;");
 }
