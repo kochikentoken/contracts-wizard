@@ -18,8 +18,8 @@ export function addPausable(
   });
 
   for (const fn of pausableFns) {
-    // c.addModifier("whenNotPaused", fn);
-    c.addFunctionCode('require(owner() == _msgSender() || !paused(),"Contract Paused, only the owner can do that");', fn);
+    c.addModifier("whenNotPaused", fn);
+    // c.addFunctionCode('require(owner() == _msgSender() || !paused(),"Contract Paused, only the owner can do that");', fn);
   }
 
   requireAccessControl(c, functions.pause, access, "PAUSER");
