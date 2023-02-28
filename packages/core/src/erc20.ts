@@ -96,10 +96,6 @@ export function buildERC20(opts: ERC20Options): Contract {
     addSnapshot(c, access);
   }
 
-  if (allOpts.pausable) {
-    addPausable(c, access, allOpts?.taxOpts.taxable ? [] : [functions._beforeTokenTransfer], allOpts.pauseOpts);
-  }
-
   if (allOpts.premint) {
     addPremint(c, allOpts.premint);
   }
@@ -136,6 +132,10 @@ export function buildERC20(opts: ERC20Options): Contract {
   setAccessControl(c, access, user);
   setUpgradeable(c, upgradeable, access);
   setInfo(c, info);
+
+  if (allOpts.pausable) {
+    addPausable(c, access, allOpts?.taxOpts.taxable ? [] : [functions._beforeTokenTransfer], allOpts.pauseOpts);
+  }
 
   return c;
 }
