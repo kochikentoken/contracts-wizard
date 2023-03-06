@@ -17,7 +17,7 @@ export function setAccessControl(c: ContractBuilder, access: Access, user = fals
     }
     case "roles": {
       if (c.addParent(parents.AccessControl)) {
-        c.addConstructorCode(`_grantRole(DEFAULT_ADMIN_ROLE, ${user ? "user" : "msg.sender"});`);
+        c.addConstructorCode(`_grantRole(DEFAULT_ADMIN_ROLE, user);`);
       }
       c.addOverride(parents.AccessControl.name, supportsInterface);
       break;

@@ -134,7 +134,7 @@ export function buildERC20(opts: ERC20Options): Contract {
   setInfo(c, info);
 
   if (allOpts.pausable) {
-    addPausable(c, access, allOpts?.taxOpts.taxable ? [] : [functions._beforeTokenTransfer], allOpts.pauseOpts);
+    addPausable(c, access, allOpts?.taxOpts.taxable ? [] : [functions._beforeTokenTransfer], allOpts.pauseOpts, allOpts?.whitelistOpts?.bypassPause);
   }
 
   return c;

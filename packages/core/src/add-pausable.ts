@@ -1,4 +1,4 @@
-import type { PauseOptions } from "./common-options";
+import type { PauseOptions, WhitelistOptions } from "./common-options";
 import type { ContractBuilder, BaseFunction } from "./contract";
 import { Access, requireAccessControl } from "./set-access-control";
 import { defineFunctions } from "./utils/define-functions";
@@ -10,7 +10,8 @@ export function addPausable(
   pauseOpts: PauseOptions = {
     paused: false,
     unpausable: true,
-  }
+  },
+  bypassPause = false
 ) {
   c.addParent({
     name: "Pausable",
@@ -18,8 +19,14 @@ export function addPausable(
   });
 
   for (const fn of pausableFns) {
-    c.addModifier("whenNotPaused", fn);
-    // c.addFunctionCode('require(owner() == _msgSender() || !paused(),"Contract Paused, only the owner can do that");', fn);
+    // c.addModifier("whenNotPaused", fn);
+    c.addFunctionCode("address sender = _msgSender();", fn);
+    c.addFunctionCode(
+      `require(${access === "ownable" ? "owner() == sender" : "hasRole(DEFAULT_ADMIN_ROLE, sender)"} ||${
+        bypassPause ? " whitelist[sender] ||" : ""
+      } !paused(),"Contract Paused, only the owner or a whitelisted user can do that");`,
+      fn
+    );
   }
 
   requireAccessControl(c, functions.pause, access, "PAUSER");

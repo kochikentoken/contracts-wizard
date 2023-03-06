@@ -12,7 +12,7 @@ export function addWhitelist(c: ContractBuilder, access: Access, whitelistOpts: 
 
   c.addVariable("mapping(address => bool) public whitelist;");
   c.addConstructorArgument({ name: "whiltelist_addrs", type: "address[] memory" });
-  c.addConstructorCode("setArrayWhitelisted(whiltelist_addrs, true);");
+  c.addConstructorCode("for (uint256 i = 0; i < whiltelist_addrs.length; i++) {\nwhitelist[whiltelist_addrs[i]] = true;\n}");
   if (taxable) c.addConstructorCode("whitelist[_taxAddress] = true;");
   c.addConstructorCode("whitelist[user] = true;");
   c.addConstructorCode("whitelist[address(this)] = true;");
