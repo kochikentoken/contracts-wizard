@@ -20,9 +20,12 @@ export function addPausable(
 
   for (const fn of pausableFns) {
     // c.addModifier("whenNotPaused", fn);
-    c.addFunctionCode("address sender = _msgSender();", fn);
+    if (access) {
+      c.addFunctionCode("address sender = _msgSender();", fn);
+    }
+
     c.addFunctionCode(
-      `require(${access === "ownable" ? "owner() == sender" : "hasRole(DEFAULT_ADMIN_ROLE, sender)"} ||${
+      `require(${access ? (access === "ownable" ? "owner() == sender ||" : "hasRole(DEFAULT_ADMIN_ROLE, sender) ||") : ""}${
         bypassPause ? " whitelist[sender] ||" : ""
       } !paused(),"Contract Paused, only the owner or a whitelisted user can do that");`,
       fn
